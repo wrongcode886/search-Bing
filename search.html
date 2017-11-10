@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>search</title>
+	<style type="text/css">
+		body{ background-color:#333;}
+		.bg{background:url('bg.jpg');width:1228px; height:768px;margin:0 auto; position:relative;} 
+		.logo{background-image: url('logo.png'); width:107px; height:53px; float:left;}
+		.search_form{margin-left:20px; margin-top:10px;float: left;background:#fff;}
+		.search_text{background:#fff; width: 300px;height:25px; line-height:25px;border:0;outline:none; padding:5px;float:left;}
+		.search_button{float:left;background:url(search-button.png); width:29px;height:29px;border:0;margin:2px;cursor:pointer;}
+		.form{position:absolute; top:150px;left:200px;}
+		.suggest{width:315px;background:#fff;border:1px solid #999;}
+		.suggest ul{ margin:0px;padding:0px;}
+		.suggest li{ list-style:none; padding:5px; font-size:14px;color:#777;}
+		.suggest li:hover{text-decoration:underline; cursor:pointer; background:#e5e5e5;}
+
+	</style>
+</head>
+<body>
+	<div class="bg">
+		<div class="form"> 
+			<div class="logo"></div>
+			<form action="https://cn.bing.com/" target="_blank" class="search_form" id="search_form">
+				<input type="text" class="search_text" id="search_input">
+				<input type="submit" class="search_button" value="">
+			</form>
+		</div>
+	</div>
+	<div class="suggest" id="search_suggest" style="display:none">
+		<ul id="search_result">
+		</ul>
+	</div>
+	<script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
+	<script>
+		$('#search_input').on('keyup',function(){
+			var input=$(this);
+			var inputText=input.val();
+			var callback=function(d){
+				var d=d.AS.Results[0].Suggests;
+				var html="";
+				for(var i=0;i<d.length;i++){
+					html+='<li>'+d[i].Txt+'</li>';
+				}
+				$('#search_result').html(html);
+				$("#search_suggest").css({  
+                    top: $('#search_form').offset().top + $("#search_form").height() + 10,  
+                    left: $('#search_form').offset().left  
+                }).show();  
+            };  
+             $.ajax({  
+                type: "get",  
+                async: false,  
+                url: "http://api.bing.com/qsonhs.aspx?type=cb&cb=callback&q=" + inputText,  
+                dataType: "jsonp",  
+                jsonp: "callback",//传递给请求处理程序或页面的，用以获得jsonp回调函数名的参数名(一般默认为:callback)  
+                jsonpCallback:"callback",//自定义的jsonp回调函数名称，默认为jQuery自动生成的随机函数名，也可以写"?"，jQuery会自动为你处理数据  
+                success: function (data) {  
+                    callback(data);  
+                },  
+                error: function (data) {  
+                    console.log(data);  
+                }  
+            });  
+        });  
+$(document).on('click',function(){
+			$('#search_suggest').hide();
+		});
+
+		$(document).delegate('li','click',function(){
+			var keyword=$(this).text();
+			location.href='http://cn.bing.com/search?q='+keyword;
+		});
+
+
+
+
+		// 	var searchText=$('#search_input').val();
+		// 	$.get('http://api.bing.com/qsonhs.aspx?q='+searchText,function(d){
+		// 		var d=d.AS.Results[0].Suggests;
+		// 		var html='';
+		// 		for(var i=0;i<d.length;i++){
+		// 			html+='<li>'+d[i].Txt+'</li>';
+		// 		}
+		// 		$('#search_result').html(html);
+		// 		$('#search_suggest').show().css({
+		// 		top:$('#search_form').offset().top+$('#search_form').height(),
+		// 		left:$('#search_form').offset().left-1,
+		// 		position:'absolute',
+		// 		});
+		// 	},'json');
+		// })
+
+		// $(document).on('click',function(){
+		// 	$('#search_suggest').hide();
+		// });
+
+		// $(document).delegate('li','click',function(){
+		// 	var keyword=$(this).text();
+		// 	location.href='http://cn.bing.com/search?q='+keyword;
+		// });
+	</script>
+</body>
+</html>
